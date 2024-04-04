@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  backend:
+    container_name: backend
+    build: .
+    ports: 
+      - '5000:5000'
+    expose: 
+      - 5000
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres
+    env_file:
+      - .env
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRESQL_DB}
+      POSTGRES_USER: ${POSTGRESQL_USER}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+    ports:
+      - '5432:5432'
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "443:443"
+      - "80:80"
+    depends_on:
+      - backend
+
+networks:
+  default:
+    name: local
+    driver: bridge

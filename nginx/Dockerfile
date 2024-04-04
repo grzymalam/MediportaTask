@@ -1,0 +1,17 @@
+FROM --platform=linux/amd64 nginx:latest
+
+RUN apt update && \
+  apt install libnss3-tools curl -y && \
+  curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64" && \
+  chmod +x mkcert-v*-linux-amd64 && \
+  cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
+
+RUN mkcert -install
+
+RUN mkcert -key-file /root/key.pem -cert-file /root/cert.pem localhost.local
+
+RUN rm etc/nginx/conf.d/default.conf
+
+COPY nginx.conf /etc/nginx/nginx.conf
+
+EXPOSE 80
